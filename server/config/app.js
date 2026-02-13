@@ -7,6 +7,8 @@ import cors from 'cors';
 import connectDB from './db.js';
 import authRoutes from '../routes/authRoutes.js';
 import userRoutes from '../routes/userRoutes.js';
+import profileRoutes from '../routes/profileRoutes.js';
+
 
 const app = express();
 
@@ -20,15 +22,17 @@ app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
 
-// Health check route
+
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Server running' });
 });
 
-// Auth routes
+
 app.use('/api/auth', authRoutes);
 
 app.use('/api/users', userRoutes);
+
+app.use("/api/profile", profileRoutes);
 
 
 const PORT = process.env.PORT || 3000;
