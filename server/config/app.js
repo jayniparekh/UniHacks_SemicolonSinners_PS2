@@ -37,6 +37,11 @@ app.use("/api/profile", profileRoutes);
 
 const PORT = process.env.PORT || 10000;
 
+// This tells Express what to show when someone opens your URL
+app.get('/', (req, res) => {
+  res.send('<h1>🚀 profilePro Backend is Live!</h1><p>The server and MongoDB are connected successfully.</p>');
+});
+
 app.listen(PORT, '0.0.0.0',() => {
   console.log(`Server running on port ${PORT}`);
 });
