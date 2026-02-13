@@ -1,24 +1,39 @@
-import express from "express";
-import dotenv from "dotenv";
-import db from "./db.js";
-import userRoutes from "../routes/userRoutes.js";
+import dotenv from 'dotenv';
+dotenv.config();
 
-dotenv.config({ path: "../.env" });
+import express from 'express';
+import cors from 'cors';
+
+import connectDB from './db.js';
+import authRoutes from './routes/authRoutes.js';
 
 const app = express();
 
+// Connect database
+connectDB();
+
+// Middleware
+app.use(cors());
+
 app.use(express.json());
 
-db(); 
+app.use(express.urlencoded({ extended: true }));
 
-app.use("/api/users", userRoutes);
-
-app.get("/", (req, res) => {
-  res.send("Backend is running...");
+// Health check route
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', message: 'Server running' });
 });
 
-const PORT = process.env.PORT || 5000;
+// Auth routes
+app.use('/api/auth', authRoutes);
+
+const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+});
+
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).json({ message: "Internal server error" });
 });
