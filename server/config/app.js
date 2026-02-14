@@ -8,11 +8,11 @@ import connectDB from './db.js';
 import authRoutes from '../routes/authRoutes.js';
 import userRoutes from '../routes/userRoutes.js';
 import profileRoutes from '../routes/profileRoutes.js';
+import reviewRoutes from '../routes/reviewRoutes.js';
 
 
 const app = express();
 
-// Connect database
 connectDB();
 
 // Middleware
@@ -33,6 +33,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 
 app.use("/api/profile", profileRoutes);
+
+app.use("/api/reviews", reviewRoutes);
 
 
 const PORT = process.env.PORT || 10000;
