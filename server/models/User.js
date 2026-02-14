@@ -48,6 +48,11 @@ const userSchema = new mongoose.Schema(
   },
 
   age: Number,
+  credits: {
+    type: Number,
+    default: 10, // Give them 5 reviews for free to start
+    min: 0      // Ensures the database never lets credits go negative
+  },
 
   // ========================
   // INTAKE QUESTIONNAIRE
@@ -96,14 +101,13 @@ const userSchema = new mongoose.Schema(
 
   },
 
+
   // ========================
   // REVIEWER PROFILE
   // ========================
 
   reviewerProfile: {
-
     bio: String,
-
     tags: [String],
 
     ratingAvg: {

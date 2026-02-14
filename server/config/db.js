@@ -12,4 +12,4 @@ async function db() {
     }
 }
 
-export default db;
+export default db();
