@@ -11,6 +11,7 @@ import {
     rateReviewer 
 } from '../controllers/reviewController.js';
 import { protect } from '../middleware/authMiddleware.js';
+const { reviewUserProfile } = require("../controllers/aiController");
 
 const router = express.Router();
 
@@ -32,5 +33,6 @@ router.post('/submit', submitReview);
 
 // 4. Rate Reviewer: POST /api/reviews/rate
 router.post('/rate', rateReviewer);
+router.post("/ai", reviewUserProfile);
 
 export default router;

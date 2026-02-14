@@ -1,5 +1,6 @@
 import User from '../models/User.js';
 import ReviewRequest from '../models/reviewRequests.js';
+import { getGeminiReview } from '../services/geminiService.js';
 
 /**
  * 1. User A sends invitation to User B
@@ -184,4 +185,25 @@ export const getReviewsByProfile = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+};
+
+export const generateAIReview = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        
+        // Prepare data for Gemini
+        const profileData = {
+            bio: user.reviewerProfile?.bio || "No bio provided",
+            preferences: user.intake?.preferences || {},
+            gender: user.intake?.gender,
+            interestedIn: user.intake?.interestedIn
+        };
+
+        const aiReview = await getGeminiReview(profileData);
+
+        res.json({ review: aiReview });
+    } catch (error) {
+        console.error("Gemini Error:", error);
+        res.status(500).json({ message: "AI Review failed" });
+    }
 };
