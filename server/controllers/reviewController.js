@@ -1,6 +1,6 @@
 import User from '../models/User.js';
 import ReviewRequest from '../models/reviewRequests.js';
-import { getGeminiReview } from '../services/geminiService.js';
+import { getGeminiReview } from '../utils/gemini.js';
 
 /**
  * 1. User A sends invitation to User B
