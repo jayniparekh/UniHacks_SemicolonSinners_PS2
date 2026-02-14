@@ -2,105 +2,176 @@
 import React, { useState } from "react";
 import loginImage from "../assets/login.jpg";
 import { Link, useNavigate } from "react-router-dom";
+import "../styles/Login.css";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState(""); // Error handling state
-  const navigate = useNavigate(); // Redirect after successful login
+  const [errorMessage, setErrorMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  // Handle login submit
+  const navigate = useNavigate();
+
   const handleLogin = async (e) => {
     e.preventDefault();
+    setErrorMessage("");
+    setLoading(true);
 
     const loginData = {
-      email: email,
-      password: password,
+      email,
+      password,
     };
 
     try {
-      const response = await fetch("https://yourapi.com/api/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(loginData),
-      });
+      const response = await fetch(
+        "https://profilepro-1bp4.onrender.com/api/auth/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(loginData),
+        }
+      );
 
-      const data = await response.json();
-
-      if (response.ok) {
-        // Successful login: Store token and navigate
-        localStorage.setItem("authToken", data.token); // Store token in localStorage
-        navigate("/home"); // Redirect to /home page after login
-      } else {
-        // Handle errors (e.g., invalid credentials)
-        setErrorMessage(data.message || "Something went wrong. Please try again.");
+      let data;
+      try {
+        data = await response.json();
+      } catch {
+        data = {};
       }
+
+      if (!response.ok) {
+        setErrorMessage(data.message || "Invalid credentials.");
+        return;
+      }
+
+      // Save token and user ID
+      localStorage.setItem("authToken", data.token);
+      if (data.userId) {
+        localStorage.setItem("userId", data.userId);
+      }
+
+      // ✅ Check if user has a profile
+      try {
+        const profileCheck = await fetch(
+          `https://profilepro-1bp4.onrender.com/api/profile/user/${data.userId || 'me'}`,
+          {
+            method: "GET",
+            headers: {
+              "Authorization": `Bearer ${data.token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (profileCheck.ok) {
+          const profileData = await profileCheck.json();
+          navigate(`/profile-display/${profileData._id || profileData.id}`);
+        } else if (profileCheck.status === 404) {
+          navigate("/create-profile");
+        } else {
+          navigate("/create-profile");
+        }
+      } catch (error) {
+        console.error("Error checking profile:", error);
+        navigate("/create-profile");
+      }
+
     } catch (error) {
-      // Handle any errors with the fetch request
-      setErrorMessage("Network error, please try again.");
+      setErrorMessage("Network error. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="h-screen flex items-center justify-center  bg-violet-400">
-      <div className="relative w-full max-w-6xl h-[85vh] rounded-3xl overflow-hidden shadow-2xl bg-white/10 backdrop-blur-xl mx-6">
-        <div className="flex flex-col lg:flex-row w-full h-full transition-transform duration-700 ease-in-out">
-          {/* LOGIN VIEW */}
-          <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-10 space-y-6">
-            {/* Login Form */}
-            <div className="w-full max-w-md text-white">
-              <h1 className="text-4xl font-bold mb-3">Welcome Back 👋</h1>
-              <p className="mb-8 text-white/80">Login to continue your journey</p>
-
-              {errorMessage && (
-                <div className="text-red-500 mb-4">
-                  <p>{errorMessage}</p>
-                </div>
-              )}
-
-              <form onSubmit={handleLogin}>
-                <input
-                  type="email"
-                  placeholder="Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full mb-4 px-4 py-3 rounded-xl bg-white/20 placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-pink-400"
-                />
-                <input
-                  type="password"
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full mb-6 px-4 py-3 rounded-xl bg-white/20 placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-pink-400"
-                />
-                <button className="w-full py-3 rounded-xl font-semibold bg-linear-to-r from-indigo-500 to-blue-600 hover:scale-105 transition shadow-lg">
-                  Login
-                </button>
-              </form>
-
-              <p className="mt-6 text-sm text-white/80">
-                Don't have an account?{" "}
-                <Link
-                  to="/signup"
-                  className="text-yellow-300 font-semibold hover:underline"
-                >
-                  Sign Up
-                </Link>
-              </p>
+    <div className="auth-page">
+      <div className="auth-container">
+        
+        {/* Left Side - Form */}
+        <div className="auth-form-section">
+          <div className="auth-form-wrapper">
+            
+            <div className="auth-header">
+              <h1 className="auth-title">Welcome Back 👋</h1>
+              <p className="auth-subtitle">Login to continue your journey</p>
             </div>
-          </div>
 
-          {/* Image Section */}
-          <div className="w-full lg:w-1/2">
-            <img
-              src={loginImage}
-              alt="login page image"
-              className="w-full h-full object-cover"
-            />
+            {errorMessage && (
+              <div className="error-message">
+                <svg className="error-icon" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+                <span>{errorMessage}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleLogin} className="auth-form">
+              
+              <div className="form-group">
+                <label htmlFor="email">Email Address</label>
+                <div className="input-wrapper">
+                  <svg className="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                  </svg>
+                  <input
+                    id="email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="password">Password</label>
+                <div className="input-wrapper">
+                  <svg className="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                  <input
+                    id="password"
+                    type="password"
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+
+              <button type="submit" className="auth-button" disabled={loading}>
+                {loading ? (
+                  <>
+                    <span className="spinner"></span>
+                    Logging in...
+                  </>
+                ) : (
+                  "Login"
+                )}
+              </button>
+            </form>
+
+            <p className="auth-footer-text">
+              Don't have an account?{" "}
+              <Link to="/signup" className="auth-link">Sign Up</Link>
+            </p>
           </div>
         </div>
+
+        {/* Right Side - Image */}
+        <div className="auth-image-section">
+          <div className="image-overlay"></div>
+          <img src={loginImage} alt="Login" className="auth-image" />
+          <div className="image-content">
+            <h2>Start Your Journey</h2>
+            <p>Get honest feedback on your dating profile from real people</p>
+          </div>
+        </div>
+
       </div>
     </div>
   );
