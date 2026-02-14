@@ -143,7 +143,7 @@ export const getMyProfile = async (req, res) => {
       gender: user.gender,
       location: user.location,
       age: user.age,
-      ...user.datingProfile
+      ...(user.datingProfile || {})
     };
 
     res.json(profile);
