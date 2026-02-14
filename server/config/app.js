@@ -18,7 +18,7 @@ connectDB();
 // Middleware
 app.use(cors());
 
-app.use(express.json());
+app.use(express.json({ strict: true }));
 
 app.use(express.urlencoded({ extended: true }));
 

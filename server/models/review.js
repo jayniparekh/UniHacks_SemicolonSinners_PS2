@@ -31,9 +31,9 @@ const reviewSchema = new mongoose.Schema({
     weakFor: [String]
   },
 
-  strengths: String,
-  weaknesses: String,
-  suggestions: String,
+  strengths: [String],       
+  weaknesses: [String],      
+  suggestions: [String],     
 
   photoOrderSuggestion: [Number],
   removePhotoIndex: Number
