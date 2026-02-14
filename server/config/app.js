@@ -13,7 +13,7 @@ import reviewRoutes from '../routes/reviewRoutes.js';
 
 const app = express();
 
-connectDB();
+connectDB;
 
 // Middleware
 app.use(cors());
