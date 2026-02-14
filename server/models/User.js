@@ -80,7 +80,7 @@ const userSchema = new mongoose.Schema(
       },
 
 
-      photos: [{ type: String }],
+      photos: { type: [String], default: [] },
 
  
       drinkingHabits: {
