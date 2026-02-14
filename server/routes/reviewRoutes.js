@@ -11,7 +11,7 @@ import {
     rateReviewer 
 } from '../controllers/reviewController.js';
 import { protect } from '../middleware/authMiddleware.js';
-const { reviewUserProfile } = require("../controllers/aiController");
+import { reviewUserProfile } from "../controllers/aiController.js";
 
 const router = express.Router();
 

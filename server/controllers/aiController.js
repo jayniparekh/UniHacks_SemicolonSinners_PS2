@@ -1,5 +1,5 @@
 // server/controllers/aiController.js
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+import {GoogleGenerativeAI} from "@google/generative-ai";
 
 // Optional: if you already have auth middleware that sets req.user,
 // you can use it. Otherwise, this endpoint can accept profile in body.
@@ -14,7 +14,7 @@ function safeStringify(obj) {
   }
 }
 
-exports.reviewUserProfile = async (req, res) => {
+export const reviewUserProfile = async (req, res) => {
   try {
     if (!process.env.GEMINI_API_KEY) {
       return res.status(500).json({ error: "GEMINI_API_KEY missing in server .env" });
