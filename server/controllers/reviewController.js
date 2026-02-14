@@ -16,7 +16,22 @@ export const createReview = async (req, res) => {
       removePhotoIndex
     } = req.body;
 
-    const reviewerId = req.user?._id || req.body.reviewerId; 
+    const reviewerId = req.user?.id ?? req.user?._id ?? req.body.reviewerId;
+
+    if (!profileId) {
+      return res.status(400).json({ message: "profileId is required" });
+    }
+    if (!reviewerId) {
+      return res.status(400).json({ message: "reviewerId is required (auth or body.reviewerId)" });
+    }
+
+    const submission = await ProfileSubmission.findById(profileId);
+    if (!submission) {
+      return res.status(404).json({ message: "Profile submission not found" });
+    }
+    if (submission.status === "completed") {
+      return res.status(400).json({ message: "This profile has already been reviewed" });
+    }
 
     const review = await Review.create({
       profileId,
@@ -32,27 +47,42 @@ export const createReview = async (req, res) => {
       removePhotoIndex
     });
 
-    
     await ProfileSubmission.findByIdAndUpdate(profileId, {
       status: "completed"
     });
 
     res.status(201).json(review);
-
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-
 export const getReviewsByProfile = async (req, res) => {
   try {
-    const reviews = await Review.find({
-      profileId: req.params.profileId
-    }).populate("reviewerId", "name role");
+    const { profileId } = req.params;
+    const reviews = await Review.find({ profileId })
+      .populate("reviewerId", "name username role")
+      .populate({ path: "profileId", populate: { path: "user", select: "name username" } })
+      .lean();
 
     res.status(200).json(reviews);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
+export const getReviewById = async (req, res) => {
+  try {
+    const review = await Review.findById(req.params.reviewId)
+      .populate("reviewerId", "name username role")
+      .populate({ path: "profileId", populate: { path: "user", select: "name username" } })
+      .lean();
+
+    if (!review) {
+      return res.status(404).json({ message: "Review not found" });
+    }
+
+    res.status(200).json(review);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
