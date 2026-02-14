@@ -1,5 +1,5 @@
 import User from '../models/User.js';
-import ReviewRequest from '../models/reviewRequests.js';
+import ReviewRequest from '../models/ReviewRequests.js';
 import { getGeminiReview } from '../utils/gemini.js';
 
 /**
