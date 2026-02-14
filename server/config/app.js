@@ -13,7 +13,7 @@ import profileRoutes from '../routes/profileRoutes.js';
 const app = express();
 
 // Connect database
-connectDB;
+connectDB();
 
 // Middleware
 app.use(cors());
